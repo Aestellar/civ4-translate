@@ -45,30 +45,30 @@ const TextEditorPane: React.FC<TextEditorPaneProps> = ({
           <p>{key}</p>
           <textarea
             rows={4}
-            className="text-entries"
+            className="lang-textarea"
             value={txtData.text}
             onChange={(e) => handleTextChange(key, 'text', e.target.value)}
           />
-          {txtData.gender !== undefined && (
+          <span className='gender-plural-text-container'>
+
+
             <span className="text-entries">
               <span>Gender</span>
               <input
                 type="text"
-                value={txtData.gender}
+                value={txtData.gender?txtData.gender:""}
                 onChange={(e) => handleTextChange(key, 'gender', e.target.value)}
               />
             </span>
-          )}
-          {txtData.plural !== undefined && (
             <span className="text-entries">
               <span>Plural</span>
               <input
                 type="text"
-                value={txtData.plural}
+                value={txtData.plural?txtData.plural:""}
                 onChange={(e) => handleTextChange(key, 'plural', e.target.value)}
               />
             </span>
-          )}
+          </span>
         </div>
       ))}
     </>

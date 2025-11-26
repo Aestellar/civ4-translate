@@ -1,0 +1,58 @@
+/* operations.module.css or your global stylesheet */
+
+.operations-container button {
+  padding: 8px 16px;
+  color: #007bff; /* Primary color for Parse */
+  background-color: transparent; /* Light, non-solid background */
+  border: 1.5px solid #007bff; /* Subtle outline */
+  border-radius: 4px;
+  cursor: pointer;
+  margin-bottom: 20px;
+  width: 50%;
+  transition: all 0.2s ease-in-out; /* Smooth interactions */
+  font-weight: 500;
+}
+
+/* Specific color variants */
+.parse-button {
+  color: #007bff;
+  border-color: #007bff;
+}
+
+.export-button {
+  color: #ff1e00;
+  border-color: #ff1e00;
+}
+
+/* Hover state: slightly filled background */
+.operations-container button:hover {
+  background-color: rgba(0, 123, 255, 0.08); /* Light blue tint */
+}
+
+.export-button:hover {
+  background-color: rgba(255, 30, 0, 0.08); /* Light red tint */
+}
+
+/* Active/click state: stronger fill + slight scale down */
+.operations-container button:active {
+  background-color: rgba(0, 123, 255, 0.16);
+  transform: scale(0.98);
+}
+
+.export-button:active {
+  background-color: rgba(255, 30, 0, 0.16);
+  transform: scale(0.98);
+}
+
+/* Disabled state */
+.operations-container button:disabled {
+  color: #ccc;
+  border-color: #eee;
+  background-color: transparent;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.operations-container button:disabled:hover {
+  background-color: transparent;
+}

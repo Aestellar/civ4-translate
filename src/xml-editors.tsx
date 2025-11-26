@@ -6,6 +6,7 @@ import { TextTree } from './text-tree';
 import './css/main_page.css'
 // import type { TextValue } from './ts/types';
 import TextEditorPane from './text-editor-pane';
+import Operations from './tsx/operations';
 // src/App.tsx
 
 
@@ -29,6 +30,16 @@ const XmlEditor: React.FC = () => {
   
   };
 
+  function handleNewTag(tag: string): void {
+    if(tag){
+      if(xmlTree){
+        xmlTree.addNewTag(tag,"English")
+      }
+    }
+    console.log("Add new tag",tag);
+  }
+
+
 
   function getEditorPane(){
     if(xmlTree){
@@ -43,16 +54,13 @@ const XmlEditor: React.FC = () => {
     }
 
 
-
-
-
   return (
     <div >
       <div className="app-header">
         <h2>XML TEXT Processor</h2>
       </div>
       <div className='grid-container'>
-        <div>
+        <div className='input-text-container'>
           <h3>Input</h3>
           < textarea
             className="inputText"
@@ -62,20 +70,9 @@ const XmlEditor: React.FC = () => {
             placeholder="Paste your XML here..."
           />
         </div>
-        <div> <h3>Operations</h3>     
-        <button
-          onClick={handleParse}
-          className='process-button'
-          disabled={!inputText.trim()}>Parse
-        </button>
-        <button
-          onClick={handleExport}
-          className='process-button'
-          disabled={!inputText.trim()}>Export
-        </button>        
-        </div>
+        <Operations onParse={handleParse} onExport={handleExport} onAddTag={handleNewTag}></Operations>
         <div> 
-          <div>
+          <div className='output-text-container'>
           <h3>Output</h3>
           <textarea
             className="outputText"

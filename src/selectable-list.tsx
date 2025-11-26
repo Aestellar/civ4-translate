@@ -39,31 +39,34 @@ const SelectableList:React.FC<ISelectableList>  = ({xmlTree, selectItem}) => {
     setQuery(event.target.value);
  }
 
- function handleContentFilterChange(event: any){
+  function handleContentFilterChange(event: any) {
     setContentQuery(event.target.value);
- }
+  }
 
   return (
-    <div>
-      <div className="query-filter">
-        <input type="text" placeholder="Filter by TXT_KEY" onChange={handleTXTKEYFilterChange} />
-      </div>
-      <div className="query-filter">
-        <input type="text" placeholder="Filter by content" onChange={handleContentFilterChange} />
-      </div>
-      <div className='list-container'>
-        <ul style={{ listStyle: 'none', padding: 0 }}>
-          {items.map((item, index) => (
-            <li
-              key={index}
-              onClick={() => select(item.key || "")}
-              className={(selectedItem === item.key && selectedItem !=="") ? 'selected' : ''}>
-              {item}
-            </li>
-          ))}
-        </ul>
-      </div>
 
+    <div>
+        <div className="query-filter">
+          <input type="text" placeholder="Filter by TXT_KEY" onChange={handleTXTKEYFilterChange} />
+        </div>
+        <div className="query-filter">
+          <input type="text" placeholder="Filter by content" onChange={handleContentFilterChange} />
+        </div>
+      <div>
+        <div className='list-container'>
+          <ul className="select-list" style={{ listStyle: 'none', padding: 0 }}>
+            {items.map((item, index) => (
+              <li
+                key={index}
+                onClick={() => select(item.key || "")}
+                className={(selectedItem === item.key && selectedItem !== "") ? 'selected' : ''}>
+                {item}
+              </li>
+            ))}
+          </ul>
+        </div>
+
+      </div>
     </div>
   );
 };

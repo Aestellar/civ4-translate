@@ -7,17 +7,18 @@ import type { RussianDecoder } from "./utils/russian_decoder";
  */
 export class CivText {
 
+
     public tagName: string;
     public languages: Record<string, TextValue>;
 
     textNode: Element;
-    namespace: string|null;
+    namespace: string | null;
     russianDecoder: RussianDecoder;
 
     /**
      * @param textNode - An XmlObject representing a <TEXT> element
      */
-    constructor(textNode: Element,russianDecoder:RussianDecoder) {
+    constructor(textNode: Element, russianDecoder: RussianDecoder) {
         this.russianDecoder = russianDecoder
         if (textNode.tagName !== 'TEXT') {
             throw new Error('CivText constructor expects a <TEXT> node');
@@ -35,7 +36,7 @@ export class CivText {
     }
 
 
- private extractLanguages(node: Element): Record<string, TextValue> {
+    private extractLanguages(node: Element): Record<string, TextValue> {
         const langMap: Record<string, TextValue> = {};
 
         // Iterate over direct children that are language tags (e.g., <Russian>, <English>)
@@ -58,7 +59,7 @@ export class CivText {
                 text = langElt.textContent?.trim() || '';
             }
 
-            if(lang==="Russian"){
+            if (lang === "Russian") {
                 text = this.decodeRussian(text)
             }
 
@@ -72,17 +73,17 @@ export class CivText {
     }
 
     public setLanguageData(lang: string, data: { text: string; gender?: string; plural?: string }): void {
-        console.log("lang data before update",this.languages,data)
+        console.log("lang data before update", this.languages, data)
         this.languages[lang] = {
             text: data.text.trim(),
             gender: data.gender?.trim() || undefined,
             plural: data.plural?.trim() || undefined,
         };
-        console.log("lang data after update",this.languages,data)
+        console.log("lang data after update", this.languages, data)
         this.updateXML()
     }
 
-    public updateXML(){
+    public updateXML() {
         let newTextElt = this.toXmlObject()
         this.textNode.replaceChildren(...newTextElt.children)
 
@@ -151,57 +152,65 @@ export class CivText {
         return this.languages[lang]?.plural;
     }
 
-    
+
     public getContentText(): string {
-       let text = this.textNode.textContent||""
-       return text
+        let text = this.textNode.textContent || ""
+        return text
+    }
+
+    addNewTagXML(tag: string, baseTag: string) {
+        if (this.languages[baseTag]) {
+            const clone = JSON.parse(JSON.stringify(this.languages[baseTag]))
+            this.languages[tag] = clone
+            this.updateXML()
+        }
     }
 
     /**
      * Converts back to an XML Element (for saving).
      */
-public toXmlObject(): Element {
-    const ns = this.namespace || "";
-    // Create a document with the specified namespace
-    const doc = document.implementation.createDocument(ns, null, null);
+    public toXmlObject(): Element {
+        const ns = this.namespace || "";
+        // Create a document with the specified namespace
+        const doc = document.implementation.createDocument(ns, null, null);
 
-    const textElt = doc.createElementNS(ns, 'TEXT');
-    const tagElt = doc.createElementNS(ns, 'Tag');
-    tagElt.textContent = this.tagName;
-    textElt.appendChild(tagElt);
+        const textElt = doc.createElementNS(ns, 'TEXT');
+        const tagElt = doc.createElementNS(ns, 'Tag');
+        tagElt.textContent = this.tagName;
+        textElt.appendChild(tagElt);
 
-    for (const lang of this.getLanguages()) {
-        const data = this.languages[lang];
-        const langElt = doc.createElementNS(ns, lang);
-        let newText= data.text
-        if(newText){newText=this.codeRussian(newText)}
-        if (data.gender !== undefined || data.plural !== undefined) {
-            // Complex structure
-            if (data.text !== undefined) {
-                const textNode = doc.createElementNS(ns, 'TEXT');
-                textNode.textContent = newText;
-                langElt.appendChild(textNode);
+        for (const lang of this.getLanguages()) {
+            const data = this.languages[lang];
+            const langElt = doc.createElementNS(ns, lang);
+            let newText = data.text
+            if (newText) { newText = this.codeRussian(newText) }
+            if (data.gender !== undefined || data.plural !== undefined) {
+                // Complex structure
+                if (data.text !== undefined) {
+                    const textNode = doc.createElementNS(ns, 'TEXT');
+                    textNode.textContent = newText;
+                    langElt.appendChild(textNode);
+                }
+                if (data.gender !== undefined) {
+                    const genderNode = doc.createElementNS(ns, 'Gender');
+                    genderNode.textContent = data.gender;
+                    langElt.appendChild(genderNode);
+                }
+                if (data.plural !== undefined) {
+                    const pluralNode = doc.createElementNS(ns, 'Plural');
+                    pluralNode.textContent = data.plural;
+                    langElt.appendChild(pluralNode);
+                }
+            } else {
+                // Simple structure
+                langElt.textContent = newText;
             }
-            if (data.gender !== undefined) {
-                const genderNode = doc.createElementNS(ns, 'Gender');
-                genderNode.textContent = data.gender;
-                langElt.appendChild(genderNode);
-            }
-            if (data.plural !== undefined) {
-                const pluralNode = doc.createElementNS(ns, 'Plural');
-                pluralNode.textContent = data.plural;
-                langElt.appendChild(pluralNode);
-            }
-        } else {
-            // Simple structure
-            langElt.textContent = newText;
+
+            textElt.appendChild(langElt);
         }
 
-        textElt.appendChild(langElt);
+        return textElt;
     }
-
-    return textElt;
-}
 
     public createXMLElement(tagName: string, content: string) {
         let xmlString = `<${tagName}>${content}
@@ -214,9 +223,9 @@ public toXmlObject(): Element {
     /**
      * codeRussian
      */
-    public codeRussian(text:string) {
+    public codeRussian(text: string) {
         let result = this.russianDecoder.translateRuCiv(text)
-        console.log("text", text,result)
+        console.log("text", text, result)
         return result;
     }
 
@@ -224,9 +233,9 @@ public toXmlObject(): Element {
     /**
      * decodeRussian
      */
-    public decodeRussian(text:string) {
+    public decodeRussian(text: string) {
         let result = this.russianDecoder.translateJavRu(text)
-        console.log("text", text,result)
+        console.log("text", text, result)
         return result;
     }
 }
