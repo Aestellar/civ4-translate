@@ -89,7 +89,12 @@ export class CivText {
 
     }
 
-
+    public hasText(text:string){
+        for (const lang of this.getLanguages()){
+        return this.languages[lang].text.toLowerCase().includes(text.toLowerCase())
+        }
+        return false
+    }
     /**
      * Updates or adds content for a specific language.
      */

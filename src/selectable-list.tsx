@@ -21,8 +21,7 @@ const SelectableList:React.FC<ISelectableList>  = ({xmlTree, selectItem}) => {
       return key.toLowerCase().includes(query.toLowerCase())
     })
     .filter(([,civ])=>{
-      let civText = civ.getContentText()
-      return civText.toLowerCase().includes(contentQuery.toLowerCase())
+      return civ.hasText(contentQuery)
     })
     .map(([key, civ])=>{
         return  <div key={key}>
