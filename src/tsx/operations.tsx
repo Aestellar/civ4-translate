@@ -49,7 +49,6 @@ function addTag(){
         className="add-tag-button">
         AddTag
       </button>
-
     </div>
   );
 };

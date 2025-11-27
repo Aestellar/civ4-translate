@@ -15,19 +15,26 @@ const SelectableList:React.FC<ISelectableList>  = ({xmlTree, selectItem}) => {
   const [query, setQuery] = useState('');
   const [contentQuery, setContentQuery] = useState(''); 
 
-  // Extract items from xmlTree (assuming it's an array of strings)
-    const items =  Object.entries(xmlTree.textMap)
-    .filter(([key])=>{
-      return key.toLowerCase().includes(query.toLowerCase())
-    })
-    .filter(([,civ])=>{
-      return civ.hasText(contentQuery)
-    })
-    .map(([key, civ])=>{
+
+  // 🔑 Keep filtered DATA (not JSX)
+  const filteredEntries = Object.entries(xmlTree.textMap)
+    .filter(([key]) => key.toLowerCase().includes(query.toLowerCase()))
+    .filter(([, civ]) => civ.hasText(contentQuery));
+
+const items = filteredEntries .map(([key, civ])=>{
         return  <div key={key}>
-          <p>{civ.tagName}</p>
-        </div>
-})
+        <p>{civ.tagName}</p>
+      </div>
+    })
+
+  // ✅ Auto-select if only one item
+  if (filteredEntries.length>= 1) {
+    const [key] = filteredEntries[0];
+    if (selectedItem !== key) {
+      setSelectedItem(key);
+      selectItem(key);
+    }
+  }
 
  function select(selectedKey:string){
     setSelectedItem(selectedKey||"")

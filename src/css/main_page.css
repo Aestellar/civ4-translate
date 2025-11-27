@@ -48,7 +48,7 @@ div>.grid-container {
 }
 
 
-.input-text-container {
+.input-text-container, .output-text-container {
     overflow-x: hidden;
     overflow-y: hidden;
 }
@@ -72,7 +72,64 @@ div>.grid-container {
 
 
 
+/* Define base height */
+:root {
+  --control-height: 90px; /* adjust based on your design */
+}
+
+.language-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px; /* space between header and input row */
+  width: 100%;
+}
+
+
+.language-header p {
+  margin: 10px;
+  font-weight: bold;
+}
+
+/* Row containing textarea + gender/plural controls */
+.language-section > div:last-child {
+  display: flex;
+  align-items: flex-start; /* top-align children */
+  gap: 10px; /* optional: space between textarea and controls */
+  width: 100%;
+}
+
+/* Textarea takes remaining space */
+.lang-textarea {
+  min-height: calc(var(--control-height) + 10px); /* ← 10px taller */
+  flex: 1;
+  min-width: 0; /* critical: allows shrinking below intrinsic width */
+  resize: vertical; /* or 'none' if you don’t want resizing */
+  box-sizing: border-box;
+}
+
+/* Gender/Plural control panel */
 .gender-plural-text-container {
+    min-height: var(--control-height);
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    flex-shrink: 0;
+    /* prevents shrinking */
+}
+
+.gender-plural-text-container .text-entries {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start; /* align labels/inputs to the left */
+}
+
+/* Optional: style inputs */
+.gender-plural-text-container input {
+  width: 80px; /* or your preferred width */
+  padding: 2px 4px;
+  font-size: 14px;
+}
+/* .gender-plural-text-container {
     display: inline-block;
     margin-left: 20px;
     vertical-align: top;
@@ -87,7 +144,7 @@ div>.grid-container {
     resize: vertical;
     min-height: 100px;
 
-}
+} */
 
 .text-entries {
     display: block;

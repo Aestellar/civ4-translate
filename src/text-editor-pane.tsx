@@ -51,33 +51,33 @@ const TextEditorPane: React.FC<TextEditorPaneProps> = ({
     <>
       {getActualLang().map(([key, txtData]) => (
         <div key={key} className="language-section">
-          <p>{key}</p>
-          <textarea
-            rows={4}
-            className="lang-textarea"
-            value={txtData.text}
-            onChange={(e) => handleTextChange(key, 'text', e.target.value)}
-          />
-          <span className='gender-plural-text-container'>
-
-
-            <span className="text-entries">
-              <span>Gender</span>
-              <input
-                type="text"
-                value={txtData.gender?txtData.gender:""}
-                onChange={(e) => handleTextChange(key, 'gender', e.target.value)}
-              />
+          <div className='language-header'> <p>{key}</p></div>
+          
+        <div>
+            <textarea
+              className="lang-textarea"
+              value={txtData.text}
+              onChange={(e) => handleTextChange(key, 'text', e.target.value)}
+            />
+            <span className='gender-plural-text-container'>
+              <span className="text-entries">
+                <span>Gender</span>
+                <input
+                  type="text"
+                  value={txtData.gender?txtData.gender:""}
+                  onChange={(e) => handleTextChange(key, 'gender', e.target.value)}
+                />
+              </span>
+              <span className="text-entries">
+                <span>Plural</span>
+                <input
+                  type="text"
+                  value={txtData.plural?txtData.plural:""}
+                  onChange={(e) => handleTextChange(key, 'plural', e.target.value)}
+                />
+              </span>
             </span>
-            <span className="text-entries">
-              <span>Plural</span>
-              <input
-                type="text"
-                value={txtData.plural?txtData.plural:""}
-                onChange={(e) => handleTextChange(key, 'plural', e.target.value)}
-              />
-            </span>
-          </span>
+        </div>
         </div>
       ))}
     </>

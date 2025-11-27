@@ -10,8 +10,6 @@ import Operations from './tsx/operations';
 import DragDropModal from './tsx/drag-and-drop-modal';
 // src/App.tsx
 
-import SettingsPopup from './tsx/settings-popup';
-
 import type { ISettings } from './ts/ISettings';
 import UniversalPopup from './tsx/UniversalPopup';
 
@@ -123,12 +121,12 @@ const XmlEditor: React.FC = () => {
   return (
     <div >
       <div className="app-header">
-        <h2>Civ4 Text XML Editor</h2>
+        {/* <h2>Civ4 Text XML Editor</h2> */}
       </div>
       <div>    <div>
         <UniversalPopup
           isOpen={showAddTagButton}
-          title="Help"
+          title="Add new language"
           onClose={() => setShowAddTagButton(false)}
           confirmButton={{
             label: 'Confirm',
@@ -146,27 +144,51 @@ const XmlEditor: React.FC = () => {
           <input value={baseNewTag} type="text" placeholder='Base tag for copy' onChange={(e)=>{setBaseFornewTag(e.target.value)}}></input>          
           <></>
         </UniversalPopup>
-        <SettingsPopup
+
+
+        <UniversalPopup
           isOpen={showSettings}
+          title="Settings"
           onClose={() => setShowSettings(false)}
-          onSave={handleSaveSettings}
+          confirmButton={{
+            label: 'Confirm',
+            onClick: () => {handleSaveSettings(); setShowSettings(false)},
+            variant: 'primary',
+            autoFocus: true
+          }}
+          cancelButton={{
+            label: 'Exit',
+            onClick: () => {setShowAddTagButton(false); setShowSettings(false)}
+          }}
+          closeOnEscape={true}
         >
           <div>
 
             <label className='hide-langs'>
               Hidden languages
-              <input
+              <div>
+                              <input
                 type="text"
                 value={settings.hiddenTags}
                 placeholder='Type tags to hide, separate by ;'
                 // checked={settings.notifications}
                 onChange={(e) => updateHiddenTags(e)}
               />
+              </div>
+
 
             </label>
 
           </div>
-        </SettingsPopup>
+        </UniversalPopup>
+
+        {/* <SettingsPopup
+          isOpen={showSettings}
+          onClose={() => setShowSettings(false)}
+          onSave={handleSaveSettings}
+        >
+
+        </SettingsPopup> */}
       </div></div>
       <DragDropModal handleFileDrop={handleFileDrop}></DragDropModal>
       <div className='grid-container'>
