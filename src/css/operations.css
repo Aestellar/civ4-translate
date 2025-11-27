@@ -18,7 +18,10 @@
   color: #007bff;
   border-color: #007bff;
 }
-
+.settings-button {
+  color: #00ffff;
+  border-color: #00ffff;
+}
 .export-button {
   color: #ff1e00;
   border-color: #ff1e00;

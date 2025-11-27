@@ -10,6 +10,11 @@ import Operations from './tsx/operations';
 import DragDropModal from './tsx/drag-and-drop-modal';
 // src/App.tsx
 
+import SettingsPopup from './tsx/settings-popup';
+
+import type { ISettings } from './ts/ISettings';
+import UniversalPopup from './tsx/UniversalPopup';
+
 
 
 const XmlEditor: React.FC = () => {
@@ -17,6 +22,26 @@ const XmlEditor: React.FC = () => {
   const [outputText, setOutputText] = useState<string>('');
   const [xmlTree, setXmlTree] = useState<TextTree>();
   const [selectedEltTextKey, setSelectedElt] = useState<string>();
+
+
+  const [showSettings, setShowSettings] = useState<boolean>(false);
+  const [showAddTagButton, setShowAddTagButton] = useState<boolean>(false);
+
+
+  const [settings, setSettings] = useState<ISettings>({
+    theme: 'light',
+    notifications: true,
+    hiddenTags: ""
+  });
+  const [newTag, setNewTag] = useState("")
+  const [baseNewTag, setBaseFornewTag] = useState("English")  
+
+
+  const handleSaveSettings = () => {
+    // Save logic (e.g., API, localStorage)
+    console.log('Saving settings:', settings);
+    // Close handled by SettingsPopup
+  };
 
   const handleParse = () => {
     parseText(inputText)
@@ -29,17 +54,19 @@ const XmlEditor: React.FC = () => {
 
   };
 
-  function handleNewTag(tag: string): void {
+  function handleNewTag(tag: string, baseTag:string): void {
     if (tag) {
       if (xmlTree) {
-        xmlTree.addNewTag(tag, "English")
+        xmlTree.addNewTag(tag, baseTag)
       }
     }
     console.log("Add new tag", tag);
   }
+  function handleAddTag(): void {
+      setShowAddTagButton(true)
+  }
 
-
-  function parseText(text:string) {
+  function parseText(text: string) {
     let xmlTree = new TextTree(text)
     setXmlTree(xmlTree)
     setOutputText(`${text}`);
@@ -48,7 +75,7 @@ const XmlEditor: React.FC = () => {
 
   function getEditorPane() {
     if (xmlTree) {
-      return <TextEditorPane selectedEltTextKey={selectedEltTextKey || ""} xmlTree={xmlTree}></TextEditorPane>
+      return <TextEditorPane selectedEltTextKey={selectedEltTextKey || ""} xmlTree={xmlTree} settings={settings}></TextEditorPane>
     }
     return <></>
   }
@@ -86,11 +113,61 @@ const XmlEditor: React.FC = () => {
     }
   }
 
+  function updateHiddenTags(e: React.ChangeEvent<HTMLInputElement>): void {
+    let hiddenTags: string = e.target.value;
+    setSettings(prev => ({ ...prev, hiddenTags: hiddenTags }))
+  }
+
+
+
   return (
     <div >
       <div className="app-header">
         <h2>Civ4 Text XML Editor</h2>
       </div>
+      <div>    <div>
+        <UniversalPopup
+          isOpen={showAddTagButton}
+          title="Help"
+          onClose={() => setShowAddTagButton(false)}
+          confirmButton={{
+            label: 'Confirm',
+            onClick: () => {handleNewTag(newTag, baseNewTag); setShowAddTagButton(false)},
+            variant: 'primary',
+            autoFocus: true
+          }}
+          cancelButton={{
+            label: 'Exit',
+            onClick: () => setShowAddTagButton(false)
+          }}
+          closeOnEscape={true}
+        >
+          <input value={newTag} type="text" placeholder='Type new tag name' onChange={(e)=>{setNewTag(e.target.value)}}></input>
+          <input value={baseNewTag} type="text" placeholder='Base tag for copy' onChange={(e)=>{setBaseFornewTag(e.target.value)}}></input>          
+          <></>
+        </UniversalPopup>
+        <SettingsPopup
+          isOpen={showSettings}
+          onClose={() => setShowSettings(false)}
+          onSave={handleSaveSettings}
+        >
+          <div>
+
+            <label className='hide-langs'>
+              Hidden languages
+              <input
+                type="text"
+                value={settings.hiddenTags}
+                placeholder='Type tags to hide, separate by ;'
+                // checked={settings.notifications}
+                onChange={(e) => updateHiddenTags(e)}
+              />
+
+            </label>
+
+          </div>
+        </SettingsPopup>
+      </div></div>
       <DragDropModal handleFileDrop={handleFileDrop}></DragDropModal>
       <div className='grid-container'>
         <div className='input-text-container'>
@@ -103,7 +180,7 @@ const XmlEditor: React.FC = () => {
             placeholder="Paste your XML here..."
           />
         </div>
-        <Operations onParse={handleParse} onExport={handleExport} onAddTag={handleNewTag}></Operations>
+        <Operations onParse={handleParse} onExport={handleExport} onAddTag={handleAddTag} onShowSettings={() => setShowSettings(true)}></Operations>
         <div>
           <div className='output-text-container'>
             <h3>Output</h3>

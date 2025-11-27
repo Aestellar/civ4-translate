@@ -64,26 +64,7 @@ div>.grid-container {
     /* enable vertical scroll if content overflows */
 }
 
-.list-container {
-    max-width: 100%;
-    max-height: 720px;
-    overflow-y: auto;
 
-}
-
-.list-container li {
-    padding: 8px;
-    margin: 4px 0;
-    background-color: #f5f5f5;
-    cursor: pointer;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-}
-
-.list-container li.selected {
-    background-color: #e3f2fd;
-
-}
 
 /* .language-section{
     display: block;
@@ -118,4 +99,8 @@ div>.grid-container {
 
 textarea.text-entries {
     min-width: 300px;
+}
+
+.hide-langs input{
+    min-width: 30em;
 }

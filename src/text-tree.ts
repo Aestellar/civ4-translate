@@ -38,6 +38,7 @@ export class TextTree {
 
 
     addNewTag(tag: string, baseTag: string) {
+        console.log("Try to add new tag to xml tree",tag)
         Object.entries(this.textMap).forEach(([, civText]) => {
             civText.addNewTagXML(tag, baseTag)
         });

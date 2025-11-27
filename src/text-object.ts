@@ -46,7 +46,7 @@ export class CivText {
             const lang = langElt.tagName;
 
             // Check if this language element has nested <TEXT>, <Gender>, <Plural>
-            const textChild = langElt.querySelector('TEXT');
+            const textChild = langElt.querySelector('Text')||langElt.querySelector('TEXT');
             const genderChild = langElt.querySelector('Gender');
             const pluralChild = langElt.querySelector('Plural');
 

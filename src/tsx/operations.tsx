@@ -1,6 +1,6 @@
 // Operations.tsx
 
-import React, { useState } from 'react';
+import React from 'react';
 import type { IReactChildren } from '../ts/IReactChildren';
 import '../css/operations.css'
 
@@ -8,25 +8,22 @@ import '../css/operations.css'
 type OperationHandler = () => void;
 
 interface IOperations extends IReactChildren {
-  onParse: OperationHandler;
-  onExport: OperationHandler;
-  onAddTag: (tag:string)=>void
+  onParse: OperationHandler
+  onExport: OperationHandler
+  onAddTag: OperationHandler
+  onShowSettings:OperationHandler
 }
 
 const Operations: React.FC<IOperations> = ({
   onParse,
   onExport,
-  onAddTag
+  onAddTag,
+  onShowSettings
 }) => {
 
-  const [newTag, setNewTag] = useState("")
-
-function updateNewTagName(event:any){
-  setNewTag(event.target.value)
-}
 
 function addTag(){
-  onAddTag(newTag)
+  onAddTag()
 }
 
   return (
@@ -43,11 +40,16 @@ function addTag(){
         Export
       </button>
       <button
+        onClick={onShowSettings}
+        className="settings-button">
+        Settings
+      </button>      
+      <button
         onClick={addTag}
         className="add-tag-button">
         AddTag
       </button>
-      <input type="text" placeholder='Type new tag name' onChange={updateNewTagName}></input>
+
     </div>
   );
 };
