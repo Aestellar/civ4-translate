@@ -14,6 +14,7 @@ const SelectableList:React.FC<ISelectableList>  = ({xmlTree, selectItem}) => {
   const [selectedItem, setSelectedItem] = useState("");
   const [query, setQuery] = useState('');
   const [contentQuery, setContentQuery] = useState(''); 
+  const [manualSelect, setManualSelect] = useState(false);   
 
 
   // 🔑 Keep filtered DATA (not JSX)
@@ -27,25 +28,28 @@ const items = filteredEntries .map(([key, civ])=>{
       </div>
     })
 
-  // ✅ Auto-select if only one item
-  if (filteredEntries.length>= 1) {
+
+  // ✅ Auto-select 
+  if (!manualSelect&&filteredEntries.length>= 1) {
     const [key] = filteredEntries[0];
     if (selectedItem !== key) {
-      setSelectedItem(key);
-      selectItem(key);
+      select(key, false);
     }
   }
 
- function select(selectedKey:string){
+ function select(selectedKey:string, manual:boolean){
+  if(manual){setManualSelect(true)}
     setSelectedItem(selectedKey||"")
-    selectItem(selectedKey)
+    selectItem(selectedKey, )
  }
 
  function handleTXTKEYFilterChange(event: any){
+    setManualSelect(false)
     setQuery(event.target.value);
  }
 
   function handleContentFilterChange(event: any) {
+    setManualSelect(false)
     setContentQuery(event.target.value);
   }
 
@@ -64,7 +68,7 @@ const items = filteredEntries .map(([key, civ])=>{
             {items.map((item, index) => (
               <li
                 key={index}
-                onClick={() => select(item.key || "")}
+                onClick={() => select(item.key || "", true)}
                 className={(selectedItem === item.key && selectedItem !== "") ? 'selected' : ''}>
                 {item}
               </li>
