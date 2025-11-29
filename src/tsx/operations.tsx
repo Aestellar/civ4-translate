@@ -12,13 +12,14 @@ interface IOperations extends IReactChildren {
   onExport: OperationHandler
   onAddTag: OperationHandler
   onShowSettings:OperationHandler
+
 }
 
 const Operations: React.FC<IOperations> = ({
   onParse,
   onExport,
   onAddTag,
-  onShowSettings
+  onShowSettings,
 }) => {
 
 

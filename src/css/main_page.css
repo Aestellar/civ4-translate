@@ -52,25 +52,31 @@ div>.grid-container {
     overflow-x: hidden;
     overflow-y: hidden;
 }
+.output-block h3{
+    text-align: center;
+}
 
-.outputText,
-.inputText {
+.inputText,
+.outputText {
     width: 100%;
     font-family: monospace;
     resize: vertical;
-    min-height: 5em;
     overflow-x: hidden;
     overflow-y: auto;
     /* enable vertical scroll if content overflows */
 }
 
+.inputText {
+    min-height: 5em;
+}
 
+.outputText {
+    min-height: 80vh;
+}
 
 /* .language-section{
     display: block;
 } */
-
-
 
 /* Define base height */
 :root {
@@ -161,3 +167,4 @@ textarea.text-entries {
 .hide-langs input{
     min-width: 30em;
 }
+

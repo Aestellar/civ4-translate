@@ -1,0 +1,56 @@
+/* src/components/OutputBlock.css */
+.output-block-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.output-block {
+  padding: 16px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+}
+
+.output-block h3 {
+  margin: 0 0 8px 0;
+  font-size: 1.1rem;
+  color: #333;
+}
+
+.output-info {
+  font-size: 0.9rem;
+  color: #666;
+  margin-bottom: 12px;
+}
+
+.output-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.output-btn {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: opacity 0.2s;
+  background-color: transparent; /* Light, non-solid background */
+  border: 1.5px solid #007bff; /* Subtle outline */
+  width: 100%;
+}
+
+.output-btn:hover {
+  opacity: 0.9;
+}
+
+.output-btn-show {
+  background-color: #007bff;
+  color: white;
+}
+
+.output-btn-copy {
+  background-color: #28a745;
+  color: white;
+}

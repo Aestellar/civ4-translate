@@ -14,6 +14,7 @@ export class CivText {
     textNode: Element;
     namespace: string | null;
     russianDecoder: RussianDecoder;
+    langOrderMap: { [k: string]: number; } | undefined;
 
     /**
      * @param textNode - An XmlObject representing a <TEXT> element
@@ -33,6 +34,24 @@ export class CivText {
         this.namespace = textNode.namespaceURI
         // Parse language content
         this.languages = this.extractLanguages(textNode);
+        this.updateLangOrder()
+    }
+
+
+    private updateLangOrder() {
+        const entries = Object.entries(this.languages);
+        const langOrderMap = Object.fromEntries(
+            entries.map(([lang], index) => [lang, index])
+        );
+        this.langOrderMap = langOrderMap
+}
+
+    public getLangOrder(lang:string):string{
+        if(this.langOrderMap){
+            return this.langOrderMap[lang].toString()
+        }
+
+        return ""
     }
 
 
@@ -168,6 +187,7 @@ export class CivText {
             const clone = JSON.parse(JSON.stringify(this.languages[baseTag]))
             this.languages[tag] = clone
             this.updateXML()
+            this.updateLangOrder()
         }
     }
 

@@ -19,7 +19,7 @@ export interface UniversalPopupProps {
   customFooter?: ReactNode;
   closeOnOverlayClick?: boolean;
   closeOnEscape?: boolean;
-  size?: 'small' | 'medium' | 'large';
+  size?: 'small' | 'medium' | 'large' | 'wide';
 }
 
 const UniversalPopup: React.FC<UniversalPopupProps> = ({

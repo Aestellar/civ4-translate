@@ -24,6 +24,7 @@
 .popup-size--small  { width: 400px; }
 .popup-size--medium { width: 600px; }
 .popup-size--large  { width: 800px; }
+.popup-size--wide  { width: 80vw; }
 
 .popup-header {
   padding: 18px 24px;

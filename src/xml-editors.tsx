@@ -1,6 +1,6 @@
 // src/components/XmlEditor.tsx
 
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import SelectableList from './selectable-list';
 import { TextTree } from './text-tree';
 import './css/main_page.css'
@@ -12,6 +12,10 @@ import DragDropModal from './tsx/drag-and-drop-modal';
 
 import type { ISettings } from './ts/ISettings';
 import UniversalPopup from './tsx/UniversalPopup';
+import { getLocalTime } from './utils/utils';
+import type { LogMessage } from './ts/types';
+import LogPanel from './tsx/LogPanel';
+import OutputBlock from './tsx/outputBlock';
 
 
 
@@ -23,6 +27,7 @@ const XmlEditor: React.FC = () => {
 
 
   const [showSettings, setShowSettings] = useState<boolean>(false);
+  const [showOutput, setShowOutput] = useState<boolean>(false);
   const [showAddTagButton, setShowAddTagButton] = useState<boolean>(false);
 
 
@@ -32,8 +37,15 @@ const XmlEditor: React.FC = () => {
     hiddenTags: ""
   });
   const [newTag, setNewTag] = useState("")
+  const [exportTime, setExportTime] = useState("")
   const [baseNewTag, setBaseFornewTag] = useState("English")  
 
+  const [messages, setMessages] = useState<LogMessage[]>([]) 
+
+function addMessage(text:string){
+  let message:LogMessage = {time:getLocalTime(),text, fullText:""}
+  setMessages(prevMessages => [...prevMessages, message]);
+}
 
   const handleSaveSettings = () => {
     // Save logic (e.g., API, localStorage)
@@ -47,9 +59,11 @@ const XmlEditor: React.FC = () => {
 
   const handleExport = () => {
     if (xmlTree) {
-      setOutputText(xmlTree.xmlToString());
+      setOutputText(xmlTree.xmlToString())
+      copyOutput()
+      setExportTime(getLocalTime())
+      addMessage("Exported")
     }
-
   };
 
   function handleNewTag(tag: string, baseTag:string): void {
@@ -65,7 +79,7 @@ const XmlEditor: React.FC = () => {
   }
 
   function parseText(text: string) {
-    let xmlTree = new TextTree(text)
+    let xmlTree = new TextTree(text, addMessage)
     setXmlTree(xmlTree)
     setOutputText(`${text}`);
   }
@@ -78,10 +92,15 @@ const XmlEditor: React.FC = () => {
     return <></>
   }
 
+const selectItem = useCallback((key: string) => {
+  setSelectedElt(key);
+}, []); // 👈 empty deps if it doesn't depend on changing state
 
-  function selectKey(key: string) {
-    setSelectedElt(xmlTree?.textMap[key].tagName)
-  }
+// Then pass it:
+// <SelectableList xmlTree={xmlTree} selectItem={selectItem} />
+//   function selectKey(key: string) {
+//     setSelectedElt(xmlTree?.textMap[key].tagName)
+//   }
 
 
   function handleFileDrop(fileList: FileList): void {
@@ -116,7 +135,21 @@ const XmlEditor: React.FC = () => {
     setSettings(prev => ({ ...prev, hiddenTags: hiddenTags }))
   }
 
+  function formatOutputText(): React.ReactNode {
+    // Split by any <...> pattern using regex
+    const parts = outputText.split(/<(?:[^>]+)>/);
+    return (
+        <div>
+            {parts.filter((part)=>part.trim()).map((part, index) => (
+                <p key={index}>{part.trim()}</p>
+            ))}
+        </div>
+    );
+  }
 
+function copyOutput(){
+  navigator.clipboard.writeText(outputText)
+}
 
   return (
     <div >
@@ -145,7 +178,6 @@ const XmlEditor: React.FC = () => {
           <></>
         </UniversalPopup>
 
-
         <UniversalPopup
           isOpen={showSettings}
           title="Settings"
@@ -160,14 +192,12 @@ const XmlEditor: React.FC = () => {
             label: 'Exit',
             onClick: () => {setShowAddTagButton(false); setShowSettings(false)}
           }}
-          closeOnEscape={true}
-        >
+          closeOnEscape={true}>
           <div>
-
             <label className='hide-langs'>
               Hidden languages
               <div>
-                              <input
+                <input
                 type="text"
                 value={settings.hiddenTags}
                 placeholder='Type tags to hide, separate by ;'
@@ -175,20 +205,23 @@ const XmlEditor: React.FC = () => {
                 onChange={(e) => updateHiddenTags(e)}
               />
               </div>
-
-
             </label>
-
           </div>
         </UniversalPopup>
-
-        {/* <SettingsPopup
-          isOpen={showSettings}
-          onClose={() => setShowSettings(false)}
-          onSave={handleSaveSettings}
-        >
-
-        </SettingsPopup> */}
+        <UniversalPopup
+          isOpen={showOutput}
+          size="wide"
+          title="Output"
+          onClose={() => setShowOutput(false)}
+          cancelButton={{
+            label: 'Exit',
+            onClick: () => { setShowOutput(false)}
+          }}
+          closeOnEscape={true}>
+            <div>
+              <div>{formatOutputText()}</div>
+            </div>
+        </UniversalPopup>
       </div></div>
       <DragDropModal handleFileDrop={handleFileDrop}></DragDropModal>
       <div className='grid-container'>
@@ -202,27 +235,30 @@ const XmlEditor: React.FC = () => {
             placeholder="Paste your XML here..."
           />
         </div>
-        <Operations onParse={handleParse} onExport={handleExport} onAddTag={handleAddTag} onShowSettings={() => setShowSettings(true)}></Operations>
+
+        <Operations onParse={handleParse}
+          onExport={handleExport}
+          onAddTag={handleAddTag}
+          onShowSettings={() => setShowSettings(true)}
+        ></Operations>
+        <OutputBlock onShowOutput={() => setShowOutput(true)}
+          onCopyOutput={() => copyOutput()}
+          exportTime={exportTime}>
+
+        </OutputBlock>
+
+
         <div>
-          <div className='output-text-container'>
-            <h3>Output</h3>
-            <textarea
-              className="outputText"
-              value={outputText}
-              readOnly
-              rows={5}
-              style={{}}
-            />
-          </div></div>
-        <div>
-          {(xmlTree) ? (<SelectableList xmlTree={xmlTree} selectItem={selectKey}></SelectableList>) : <></>}
+          {(xmlTree) ? (<SelectableList xmlTree={xmlTree} selectItem={selectItem}></SelectableList>) : <></>}
         </div>
+
         <div>
           <div>{selectedEltTextKey}</div>
           <div>{getEditorPane()}</div>
         </div>
         <div>
           <h3>Log</h3>
+          <LogPanel messages={messages}></LogPanel>
         </div>
       </div>
     </div>

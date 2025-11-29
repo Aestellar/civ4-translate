@@ -14,18 +14,18 @@
 }
 
 /* Specific color variants */
-.parse-button {
+/* .operations-container .parse-button {
   color: #007bff;
   border-color: #007bff;
 }
-.settings-button {
+.operations-container .settings-button {
   color: #00ffff;
   border-color: #00ffff;
 }
-.export-button {
+.operations-container .export-button {
   color: #ff1e00;
   border-color: #ff1e00;
-}
+} */
 
 /* Hover state: slightly filled background */
 .operations-container button:hover {

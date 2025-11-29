@@ -21,8 +21,8 @@ const TextEditorPane: React.FC<TextEditorPaneProps> = ({
 
 
   const selectedObj = xmlTree.textMap[selectedEltTextKey];
-
   const langs = selectedObj.languages;
+
 
   function getActualLang(){
     let hiddenTagsList =  settings.hiddenTags.split(",")
@@ -51,7 +51,7 @@ const TextEditorPane: React.FC<TextEditorPaneProps> = ({
     <>
       {getActualLang().map(([key, txtData]) => (
         <div key={key} className="language-section">
-          <div className='language-header'> <p>{key}</p></div>
+          <div className='language-header'> <p>{key} {selectedObj.getLangOrder(key)}</p></div>
           
         <div>
             <textarea
