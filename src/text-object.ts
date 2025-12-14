@@ -72,18 +72,18 @@ export class CivText {
             // If <TEXT> exists, use its content; otherwise, use whole textContent (legacy format)
             let text = '';
             if (textChild) {
-                text = textChild.textContent?.trim() || '';
+                text = textChild.textContent|| '';
             } else {
                 // Fallback: use direct text (e.g., for simple <Russian>...</Russian>)
-                text = langElt.textContent?.trim() || '';
+                text = langElt.textContent|| '';
             }
 
             if (lang === "Russian") {
                 text = this.decodeRussian(text)
             }
 
-            const gender = genderChild?.textContent?.trim();
-            const plural = pluralChild?.textContent?.trim();
+            const gender = genderChild?.textContent
+            const plural = pluralChild?.textContent
 
             langMap[lang] = { text, gender, plural };
         }
@@ -94,9 +94,9 @@ export class CivText {
     public setLanguageData(lang: string, data: { text: string; gender?: string; plural?: string }): void {
         console.log("lang data before update", this.languages, data)
         this.languages[lang] = {
-            text: data.text.trim(),
-            gender: data.gender?.trim() || undefined,
-            plural: data.plural?.trim() || undefined,
+            text: data.text,
+            gender: data.gender||undefined,
+            plural: data.plural||undefined,
         };
         console.log("lang data after update", this.languages, data)
         this.updateXML()
@@ -250,7 +250,7 @@ export class CivText {
      */
     public codeRussian(text: string) {
         let result = this.russianDecoder.translateRuCiv(text)
-        console.log("text", text, result)
+        // console.log("text", text, result)
         return result;
     }
 
@@ -260,7 +260,7 @@ export class CivText {
      */
     public decodeRussian(text: string) {
         let result = this.russianDecoder.translateJavRu(text)
-        console.log("text", text, result)
+        // console.log("text", text, result)
         return result;
     }
 }

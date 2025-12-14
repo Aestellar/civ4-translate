@@ -1,10 +1,10 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-import XmlEditor from './xml-editors'
+import MainWindow from './main-window'
 
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <XmlEditor/>
+    <MainWindow/>
   </StrictMode>,
 )

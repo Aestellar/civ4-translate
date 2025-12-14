@@ -1,11 +1,11 @@
 // TextEditorPane.tsx
 import React, { useState } from 'react';
 import type { TextValue } from './ts/types'; // or define inline
-import { TextTree } from './text-tree';
+import { XMLTree } from './xml-tree';
 import type { ISettings } from './ts/ISettings';
 interface TextEditorPaneProps {
   selectedEltTextKey: string | null;
-  xmlTree: TextTree;
+  xmlTree: XMLTree;
   settings:ISettings
 }
 

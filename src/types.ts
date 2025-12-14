@@ -22,3 +22,8 @@ export interface TextElement {
   tag: string;          // Value of the "Tag" attribute
   path: XmlPath;        // Navigation path from root to this element
 }
+
+export interface XMLFile{
+    name: string;
+  content: string;
+}

@@ -1,6 +1,6 @@
 import { CivText } from "./text-object";
 import { RussianDecoder } from "./utils/russian_decoder";
-export class TextTree {
+export class XMLTree {
 
     public textMap: Record<string, CivText>;
     xmlDocument: Node;

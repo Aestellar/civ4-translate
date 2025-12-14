@@ -1,11 +1,11 @@
 
 import { useState, useMemo, useEffect, useCallback } from "react";
-import { TextTree } from "./text-tree";
+import { XMLTree } from "./xml-tree";
 import type { IReactChildren } from "./ts/IReactChildren";
 import './css/selectable_list.css';
 
 interface ISelectableList extends IReactChildren {
-  xmlTree: TextTree;
+  xmlTree: XMLTree;
   selectItem: (tagName: string) => void;
 }
 

@@ -1,13 +1,13 @@
 // src/components/XmlEditor.tsx
 
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import SelectableList from './selectable-list';
-import { TextTree } from './text-tree';
+import { XMLTree } from './xml-tree';
 import './css/main_page.css'
 // import type { TextValue } from './ts/types';
 import TextEditorPane from './text-editor-pane';
 import Operations from './tsx/operations';
-import DragDropModal from './tsx/drag-and-drop-modal';
+// import DragDropModal from './tsx/drag-and-drop-modal';
 // src/App.tsx
 
 import type { ISettings } from './ts/ISettings';
@@ -17,12 +17,44 @@ import type { LogMessage } from './ts/types';
 import LogPanel from './tsx/LogPanel';
 import OutputBlock from './tsx/outputBlock';
 
+import type { IReactChildren } from "./ts/IReactChildren";
+import './css/selectable_list.css';
+
+interface IXMLEditor extends IReactChildren {
+  filename: string
+  content: string
+  loadedXMLTree: XMLTree | undefined
+  updateXMLTree: (filename: string, xmlTree: XMLTree) => void
+}
 
 
-const XmlEditor: React.FC = () => {
-  const [inputText, setInputText] = useState<string>('');
+const XmlEditor: React.FC<IXMLEditor> = ({ filename, content, loadedXMLTree, updateXMLTree }) => {
+  const [inputText, setInputText] = useState<string>(content);
+  useEffect(() => {
+    setInputText(content);
+  }, [content]);
+
   const [outputText, setOutputText] = useState<string>('');
-  const [xmlTree, setXmlTree] = useState<TextTree>();
+  const [xmlTree, setXmlTree] = useState<XMLTree | undefined>(loadedXMLTree);
+  useEffect(() => {
+  setXmlTree(loadedXMLTree);
+}, [loadedXMLTree]);
+const [isParsing, setIsParsing] = useState(false);
+
+useEffect(() => {
+  if (content && !loadedXMLTree && !isParsing) {
+    setIsParsing(true);
+    try {
+      const newTree = new XMLTree(content, addMessage);
+      setXmlTree(newTree);
+      updateXMLTree(filename, newTree);
+    } catch (err:any) {
+      addMessage(`Parse error: ${err.message}`);
+    } finally {
+      setIsParsing(false);
+    }
+  }
+}, [content, loadedXMLTree, filename, updateXMLTree, isParsing, addMessage]);
   const [selectedEltTextKey, setSelectedElt] = useState<string>();
 
 
@@ -38,14 +70,16 @@ const XmlEditor: React.FC = () => {
   });
   const [newTag, setNewTag] = useState("")
   const [exportTime, setExportTime] = useState("")
-  const [baseNewTag, setBaseFornewTag] = useState("English")  
+  const [baseNewTag, setBaseFornewTag] = useState("English")
 
-  const [messages, setMessages] = useState<LogMessage[]>([]) 
+  const [messages, setMessages] = useState<LogMessage[]>([])
 
-function addMessage(text:string){
-  let message:LogMessage = {time:getLocalTime(),text, fullText:""}
-  setMessages(prevMessages => [...prevMessages, message]);
-}
+
+
+  function addMessage(text: string) {
+    let message: LogMessage = { time: getLocalTime(), text, fullText: "" }
+    setMessages(prevMessages => [...prevMessages, message]);
+  }
 
   const handleSaveSettings = () => {
     // Save logic (e.g., API, localStorage)
@@ -66,22 +100,34 @@ function addMessage(text:string){
     }
   };
 
-  function handleNewTag(tag: string, baseTag:string): void {
+  function handleNewTag(tag: string, baseTag: string): void {
     if (tag) {
       if (xmlTree) {
         xmlTree.addNewTag(tag, baseTag)
+      }
+      else {
+        addMessage("No xml text model loaded")
       }
     }
     console.log("Add new tag", tag);
   }
   function handleAddTag(): void {
-      setShowAddTagButton(true)
+    setShowAddTagButton(true)
   }
 
   function parseText(text: string) {
-    let xmlTree = new TextTree(text, addMessage)
-    setXmlTree(xmlTree)
-    setOutputText(`${text}`);
+    try {
+      const newTree = new XMLTree(text, addMessage);
+      setXmlTree(newTree);
+      updateXMLTree(filename, newTree);
+      setOutputText(text);
+      addMessage("Parsed successfully");
+    } catch (err) {
+      addMessage(`Parse error: ${err instanceof Error ? err.message : 'Unknown'}`);
+    }
+
+
+
   }
 
 
@@ -92,43 +138,37 @@ function addMessage(text:string){
     return <></>
   }
 
-const selectItem = useCallback((key: string) => {
-  setSelectedElt(key);
-}, []); // 👈 empty deps if it doesn't depend on changing state
-
-// Then pass it:
-// <SelectableList xmlTree={xmlTree} selectItem={selectItem} />
-//   function selectKey(key: string) {
-//     setSelectedElt(xmlTree?.textMap[key].tagName)
-//   }
+  const selectItem = useCallback((key: string) => {
+    setSelectedElt(key);
+  }, []);
 
 
-  function handleFileDrop(fileList: FileList): void {
-    if (fileList.length > 0) {
-      const firstFile = fileList[0]; // or fileList.item(0)
-      // Use firstFile here
-      console.log(firstFile.name);
+  // function handleFileDrop(fileList: FileList): void {
+  //   if (fileList.length > 0) {
+  //     const firstFile = fileList[0]; // or fileList.item(0)
+  //     // Use firstFile here
+  //     console.log(firstFile.name);
 
-      const file = fileList[0]; // Assume fileList exists and has files
+  //     const file = fileList[0]; // Assume fileList exists and has files
 
-      if (file && file.name.endsWith('.xml')) {
-        const reader = new FileReader();
-        reader.onload = function (event: ProgressEvent<FileReader>) {
-          if (event.target) {
-            if (event.target.result) {
-              let result = event.target.result
-              if (typeof result === 'string') {
-                // result is safely treated as a string here
-                const xmlString: string = result;
-                parseText(xmlString)
-              }
-            }
-          }
-        };
-        reader.readAsText(file);
-      }
-    }
-  }
+  //     if (file && file.name.endsWith('.xml')) {
+  //       const reader = new FileReader();
+  //       reader.onload = function (event: ProgressEvent<FileReader>) {
+  //         if (event.target) {
+  //           if (event.target.result) {
+  //             let result = event.target.result
+  //             if (typeof result === 'string') {
+  //               // result is safely treated as a string here
+  //               const xmlString: string = result;
+  //               parseText(xmlString)
+  //             }
+  //           }
+  //         }
+  //       };
+  //       reader.readAsText(file);
+  //     }
+  //   }
+  // }
 
   function updateHiddenTags(e: React.ChangeEvent<HTMLInputElement>): void {
     let hiddenTags: string = e.target.value;
@@ -139,22 +179,22 @@ const selectItem = useCallback((key: string) => {
     // Split by any <...> pattern using regex
     const parts = outputText.split(/<(?:[^>]+)>/);
     return (
-        <div>
-            {parts.filter((part)=>part.trim()).map((part, index) => (
-                <p key={index}>{part.trim()}</p>
-            ))}
-        </div>
+      <div>
+        {parts.filter((part) => part.trim()).map((part, index) => (
+          <p key={index}>{part.trim()}</p>
+        ))}
+      </div>
     );
   }
 
-function copyOutput(){
-  navigator.clipboard.writeText(outputText)
-}
+  function copyOutput() {
+    navigator.clipboard.writeText(outputText)
+  }
 
   return (
     <div >
       <div className="app-header">
-        {/* <h2>Civ4 Text XML Editor</h2> */}
+        <p>{filename}</p>
       </div>
       <div>    <div>
         <UniversalPopup
@@ -163,7 +203,7 @@ function copyOutput(){
           onClose={() => setShowAddTagButton(false)}
           confirmButton={{
             label: 'Confirm',
-            onClick: () => {handleNewTag(newTag, baseNewTag); setShowAddTagButton(false)},
+            onClick: () => { handleNewTag(newTag, baseNewTag); setShowAddTagButton(false) },
             variant: 'primary',
             autoFocus: true
           }}
@@ -173,8 +213,8 @@ function copyOutput(){
           }}
           closeOnEscape={true}
         >
-          <input value={newTag} type="text" placeholder='Type new tag name' onChange={(e)=>{setNewTag(e.target.value)}}></input>
-          <input value={baseNewTag} type="text" placeholder='Base tag for copy' onChange={(e)=>{setBaseFornewTag(e.target.value)}}></input>          
+          <input value={newTag} type="text" placeholder='Type new tag name' onChange={(e) => { setNewTag(e.target.value) }}></input>
+          <input value={baseNewTag} type="text" placeholder='Base tag for copy' onChange={(e) => { setBaseFornewTag(e.target.value) }}></input>
           <></>
         </UniversalPopup>
 
@@ -184,13 +224,13 @@ function copyOutput(){
           onClose={() => setShowSettings(false)}
           confirmButton={{
             label: 'Confirm',
-            onClick: () => {handleSaveSettings(); setShowSettings(false)},
+            onClick: () => { handleSaveSettings(); setShowSettings(false) },
             variant: 'primary',
             autoFocus: true
           }}
           cancelButton={{
             label: 'Exit',
-            onClick: () => {setShowAddTagButton(false); setShowSettings(false)}
+            onClick: () => { setShowAddTagButton(false); setShowSettings(false) }
           }}
           closeOnEscape={true}>
           <div>
@@ -198,12 +238,12 @@ function copyOutput(){
               Hidden languages
               <div>
                 <input
-                type="text"
-                value={settings.hiddenTags}
-                placeholder='Type tags to hide, separate by ;'
-                // checked={settings.notifications}
-                onChange={(e) => updateHiddenTags(e)}
-              />
+                  type="text"
+                  value={settings.hiddenTags}
+                  placeholder='Type tags to hide, separate by ;'
+                  // checked={settings.notifications}
+                  onChange={(e) => updateHiddenTags(e)}
+                />
               </div>
             </label>
           </div>
@@ -215,15 +255,15 @@ function copyOutput(){
           onClose={() => setShowOutput(false)}
           cancelButton={{
             label: 'Exit',
-            onClick: () => { setShowOutput(false)}
+            onClick: () => { setShowOutput(false) }
           }}
           closeOnEscape={true}>
-            <div>
-              <div>{formatOutputText()}</div>
-            </div>
+          <div>
+            <div>{formatOutputText()}</div>
+          </div>
         </UniversalPopup>
       </div></div>
-      <DragDropModal handleFileDrop={handleFileDrop}></DragDropModal>
+      {/* <DragDropModal handleFileDrop={handleFileDrop}></DragDropModal> */}
       <div className='grid-container'>
         <div className='input-text-container'>
           <h3>Input</h3>
@@ -246,7 +286,6 @@ function copyOutput(){
           exportTime={exportTime}>
 
         </OutputBlock>
-
 
         <div>
           {(xmlTree) ? (<SelectableList xmlTree={xmlTree} selectItem={selectItem}></SelectableList>) : <></>}
