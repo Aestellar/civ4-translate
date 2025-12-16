@@ -1,4 +1,5 @@
 import type { TextValue } from "./ts/types";
+import type { MessageType } from "./types";
 import type { RussianDecoder } from "./utils/russian_decoder";
 
 /**
@@ -15,11 +16,12 @@ export class CivText {
     namespace: string | null;
     russianDecoder: RussianDecoder;
     langOrderMap: { [k: string]: number; } | undefined;
+    addMessage: (t: string, messageType?: MessageType)=>void
 
     /**
      * @param textNode - An XmlObject representing a <TEXT> element
      */
-    constructor(textNode: Element, russianDecoder: RussianDecoder) {
+    constructor(textNode: Element, russianDecoder: RussianDecoder, addMessage: (t: string, messageType?: MessageType)=>void) {
         this.russianDecoder = russianDecoder
         if (textNode.tagName !== 'TEXT') {
             throw new Error('CivText constructor expects a <TEXT> node');
@@ -35,10 +37,11 @@ export class CivText {
         // Parse language content
         this.languages = this.extractLanguages(textNode);
         this.updateLangOrder()
+        this.addMessage = addMessage;
     }
 
 
-    private updateLangOrder() {
+    public updateLangOrder() {
         const entries = Object.entries(this.languages);
         const langOrderMap = Object.fromEntries(
             entries.map(([lang], index) => [lang, index])
@@ -46,13 +49,17 @@ export class CivText {
         this.langOrderMap = langOrderMap
 }
 
-    public getLangOrder(lang:string):string{
-        if(this.langOrderMap){
-            return this.langOrderMap[lang].toString()
-        }
+    // public getLangOrder(lang:string):string{
+    //     if(this.langOrderMap){
+    //         return this.langOrderMap[lang].toString()
+    //     }
 
-        return ""
-    }
+    //     return ""
+    // }
+
+public getLanguageIndex(lang: string): number {
+    return this.langOrderMap?.[lang] ?? -1;
+}
 
 
     private extractLanguages(node: Element): Record<string, TextValue> {
@@ -60,7 +67,7 @@ export class CivText {
 
         // Iterate over direct children that are language tags (e.g., <Russian>, <English>)
         for (const langElt of Array.from(node.children)) {
-            if (langElt.tagName === 'Tag') continue; // Skip <Tag>
+            if (langElt.tagName.toLowerCase() === 'Tag'.toLowerCase()) continue; // Skip <Tag>
 
             const lang = langElt.tagName;
 
@@ -108,12 +115,16 @@ export class CivText {
 
     }
 
-    public hasText(text:string){
-        for (const lang of this.getLanguages()){
-        return this.languages[lang].text.toLowerCase().includes(text.toLowerCase())
+public hasText(text: string): boolean {
+    const normalized = text.toLowerCase();
+    for (const lang of this.getLanguages()) {
+        if (this.languages[lang].text.toLowerCase().includes(normalized)) {
+            return true;
         }
-        return false
     }
+    return false;
+}
+
     /**
      * Updates or adds content for a specific language.
      */
@@ -182,14 +193,31 @@ export class CivText {
         return text
     }
 
-    addNewTagXML(tag: string, baseTag: string) {
-        if (this.languages[baseTag]) {
-            const clone = JSON.parse(JSON.stringify(this.languages[baseTag]))
-            this.languages[tag] = clone
-            this.updateXML()
-            this.updateLangOrder()
-        }
+
+addNewTagXML(tag: string, baseTag: string) {
+    const base = this.languages[baseTag];
+    if (!base) {
+        this.addMessage(`Base language "${baseTag}" not found for tag "${tag}"`,"error")
+        console.warn();
+        return;
     }
+    this.languages[tag] = JSON.parse(JSON.stringify(base));
+    this.updateXML();
+    this.updateLangOrder();
+}
+    
+// In CivText class
+public hasEqualText(lang1: string, lang2: string): boolean {
+    const data1 = this.getLanguageData(lang1);
+    const data2 = this.getLanguageData(lang2);
+    
+    // If either is missing, they can't be equal
+    if (!data1 || !data2) return false;
+    
+    // Compare decoded text (case-sensitive or insensitive?)
+    // Usually: case-sensitive for exact match, but you decide
+    return data1.text === data2.text;
+}
 
     /**
      * Converts back to an XML Element (for saving).

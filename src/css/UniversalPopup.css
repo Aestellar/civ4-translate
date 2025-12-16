@@ -42,8 +42,9 @@
   padding: 24px;
   overflow-y: auto;
   flex: 1;
+  text-align: center;
 }
-
+.popup-content input {width: 80%;}
 .popup-actions {
   padding: 18px 24px;
   display: flex;

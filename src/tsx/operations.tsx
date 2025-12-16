@@ -12,14 +12,15 @@ interface IOperations extends IReactChildren {
   onExport: OperationHandler
   onAddTag: OperationHandler
   onShowSettings: OperationHandler
-
+  onUnificate:OperationHandler
+  onAddNewTextKey:OperationHandler
 }
 
 const Operations: React.FC<IOperations> = ({
-  onParse,
-  onExport,
   onAddTag,
   onShowSettings,
+  onUnificate,
+  onAddNewTextKey
 }) => {
 
 
@@ -31,7 +32,7 @@ const Operations: React.FC<IOperations> = ({
     <div className='operations-container'>
       <h3>Operations</h3>
       <div className='operations-block'>
-        <button
+        {/* <button
           onClick={onParse}
           className="parse-button">
           Parse
@@ -40,7 +41,7 @@ const Operations: React.FC<IOperations> = ({
           onClick={onExport}
           className="export-button">
           Export
-        </button>
+        </button> */}
         <button
           onClick={onShowSettings}
           className="settings-button">
@@ -49,8 +50,18 @@ const Operations: React.FC<IOperations> = ({
         <button
           onClick={addTag}
           className="add-tag-button">
-          AddTag
+          Add Language
         </button>
+        <button
+          onClick={onUnificate}
+          className="add-tag-button">
+          Unify Languages
+        </button>
+        <button
+          onClick={onAddNewTextKey}
+          className="add-new-text-key-button">
+          Add new TXT_KEY
+        </button>        
       </div>
 
     </div>

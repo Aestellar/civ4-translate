@@ -27,3 +27,5 @@ export interface XMLFile{
     name: string;
   content: string;
 }
+
+export type MessageType = 'normal' | 'success' | 'error' | 'warning' | 'other';

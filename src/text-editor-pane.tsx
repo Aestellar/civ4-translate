@@ -51,7 +51,7 @@ const TextEditorPane: React.FC<TextEditorPaneProps> = ({
     <>
       {getActualLang().map(([key, txtData]) => (
         <div key={key} className="language-section">
-          <div className='language-header'> <p>{key} {selectedObj.getLangOrder(key)}</p></div>
+          <div className='language-header'> <p>{key} {selectedObj.getLanguageIndex(key)}</p></div>
           
         <div>
             <textarea

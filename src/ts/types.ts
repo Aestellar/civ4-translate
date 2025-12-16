@@ -1,3 +1,5 @@
+import type { MessageType } from "../types";
+
 export interface TextValue {
         text: string;
         gender?: string;     // e.g., "Male"
@@ -8,4 +10,5 @@ export interface LogMessage {
   time: string; // or Date if you prefer
   text: string;
   fullText: string;
+  messageType: MessageType
 }

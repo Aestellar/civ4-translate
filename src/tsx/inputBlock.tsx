@@ -16,10 +16,10 @@ const InputBlock: React.FC<InputBlockProps> = ({
             <h3>Input</h3>
       <div className="input-block"> 
         <div className="input-actions">
-          <button className="input-btn input-btn-show" onClick={onShowInput}>
+          <button className="civ-tex-btn" onClick={onShowInput}>
             Show input window
           </button>
-          <button className="input-btn input-btn-import" onClick={onImportInput}>
+          <button className="civ-tex-btn" onClick={onImportInput}>
             Import from input
           </button>          
         </div>

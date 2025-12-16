@@ -5,6 +5,7 @@
 import React from 'react';
 import type { LogMessage } from '../ts/types';
 import '../css/log_panel.css'
+import type { MessageType } from '../types';
 
 interface LogPanelProps {
   messages: LogMessage[];
@@ -19,6 +20,16 @@ const LogPanel: React.FC<LogPanelProps> = ({
     onShowMessage?.(message);
   };
 
+
+function getMessageMark(messageType: MessageType): string {
+    switch (messageType) {
+        case 'error': return '❌';
+        case 'warning': return '⚠️';
+        case 'success': return '✅';
+        default: return ''; // normal and other get no mark
+    }
+}
+
   return (
     <div className="log-panel">
       {messages.length === 0 ? (
@@ -32,6 +43,7 @@ const LogPanel: React.FC<LogPanelProps> = ({
               onClick={() => handleMessageClick(message)}
             >
               <span className="log-time">[{message.time}]</span>
+              <span>{getMessageMark(message.messageType)}</span>
               <span className="log-text">{message.text}</span>
             </li>
           ))}

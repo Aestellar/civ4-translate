@@ -39,8 +39,16 @@ export function detectXMLEncoding (bytes: Uint8Array): string {
     return 'utf-8';
   };
 
-  export function wrapAsGameText(xmlString:string):string{
-    return `<?xml version="1.0" encoding="ISO-8859-1"?>
-    <!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by lcollins (Firaxis Games) -->
-    <Civ4GameText xmlns="http://www.firaxis.com"> ${xmlString} </Civ4GameText>`   
-  }
+
+function hasCivTags(str: string): boolean {
+  const first500 = str.slice(0, 500);
+  const last500 = str.slice(-500);  // Negative slice gets last 500 chars
+  return first500.includes('<Civ4GameText xmlns="') && last500.includes('</Civ4GameText>');
+}
+
+export function wrapAsGameText(xmlString: string): string {
+    if (hasCivTags(xmlString)) return xmlString
+    return `<?xml version="1.0" encoding="UTF-8"?>
+      <!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by lcollins (Firaxis Games) -->
+      <Civ4GameText xmlns="http://www.firaxis.com"> ${xmlString} </Civ4GameText>`
+}

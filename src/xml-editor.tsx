@@ -20,6 +20,8 @@ import InputBlock from './tsx/inputBlock';
 
 import type { IReactChildren } from "./ts/IReactChildren";
 import './css/selectable_list.css';
+import type { MessageType } from './types';
+import { downloadXMLFiles } from './utils/downloadXMLFiles';
 
 interface IXMLEditor extends IReactChildren {
   filename: string
@@ -62,28 +64,42 @@ useEffect(() => {
   const [showSettings, setShowSettings] = useState<boolean>(false);
   const [showOutput, setShowOutput] = useState<boolean>(false);
   const [showInput, setShowInput] = useState<boolean>(false);
-
+  const [showAddTextKey, setShowAddTextKey] = useState<boolean>(false);  
+const [treeVersion, setTreeVersion] = useState(0);
   
   const [showAddTagButton, setShowAddTagButton] = useState<boolean>(false);
+  const [newTag, setNewTag] = useState("")
+  const [newTextKey, setNewTextKey] = useState("") 
+  // const [exportTime, setExportTime] = useState("")
+  const [baseNewTag, setBaseFornewTag] = useState("English")
 
+  const [showUnificateButton, setShowUnificateButton] = useState<boolean>(false);
+  const [langSchema, setLangSchema] = useState("")
 
   const [settings, setSettings] = useState<ISettings>({
     theme: 'light',
     notifications: true,
     hiddenTags: ""
   });
-  const [newTag, setNewTag] = useState("")
-  const [exportTime, setExportTime] = useState("")
-  const [baseNewTag, setBaseFornewTag] = useState("English")
+
 
   const [messages, setMessages] = useState<LogMessage[]>([])
 
 
 
-  function addMessage(text: string) {
-    let message: LogMessage = { time: getLocalTime(), text, fullText: "" }
+function addMessage(text: string, messageType: MessageType = 'normal') {
+    let message: LogMessage = { 
+        time: getLocalTime(), 
+        text, 
+        fullText: "", 
+        messageType 
+    };
     setMessages(prevMessages => [...prevMessages, message]);
-  }
+}
+  // function addMessage(text: string) {
+  //   let message: LogMessage = { time: getLocalTime(), text, fullText: "" }
+  //   setMessages(prevMessages => [...prevMessages, message]);
+  // }
 
   const handleSaveSettings = () => {
     // Save logic (e.g., API, localStorage)
@@ -99,7 +115,7 @@ useEffect(() => {
     if (xmlTree) {
       setOutputText(xmlTree.xmlToString())
       copyOutput()
-      setExportTime(getLocalTime())
+      // setExportTime(getLocalTime())
       addMessage("Exported")
     }
   };
@@ -134,12 +150,18 @@ useEffect(() => {
   }
 
   function importFromText(text: string) {
+    const XMLdocumentText = wrapAsGameText(text)
+
     try {
-      const newTree = new XMLTree(text, addMessage);
+      const newTree = new XMLTree(XMLdocumentText, addMessage);
+      if(xmlTree){
+        xmlTree.importTags(newTree)
+      }
+
     }
     
     catch (err) {
-      addMessage(`Parse error: ${err instanceof Error ? err.message : 'Unknown'}`);
+      addMessage(`Parse error: ${err instanceof Error ? err.message : 'Import fail'}`,"error");
     }
   }
 
@@ -177,6 +199,30 @@ useEffect(() => {
     navigator.clipboard.writeText(outputText)
   }
 
+  function handleUnificate(langSchema: any) {
+    if(xmlTree) xmlTree.unifyLanguageOrder(langSchema.split(";"))
+  }
+
+  function handleSaveAsFileOutput() {
+      if (xmlTree) {
+      setOutputText(xmlTree.xmlToString())
+      // copyOutput()
+      // setExportTime(getLocalTime())
+
+      downloadXMLFiles([{ name: filename, content: xmlTree.xmlToString() }], false); // → direct XML
+      addMessage("Exported as file","success")
+    }
+  }
+
+  function handleAddTextKey(newTextKey: any) {
+    if(xmlTree){
+      xmlTree.createAndAddTextEntry(newTextKey)
+      setXmlTree(xmlTree)
+      updateXMLTree(filename,xmlTree)
+      setTreeVersion(v => v + 1); 
+    }
+  }
+
   return (
     <div >
       <div className="app-header">
@@ -203,7 +249,25 @@ useEffect(() => {
           <input value={baseNewTag} type="text" placeholder='Base tag for copy' onChange={(e) => { setBaseFornewTag(e.target.value) }}></input>
           <></>
         </UniversalPopup>
-
+        <UniversalPopup
+          isOpen={showUnificateButton}
+          title="Unify Languages"
+          onClose={() => setShowUnificateButton(false)}
+          confirmButton={{
+            label: 'Confirm',
+            onClick: () => { handleUnificate(langSchema); setShowUnificateButton(false) },
+            variant: 'primary',
+            autoFocus: true
+          }}
+          cancelButton={{
+            label: 'Exit',
+            onClick: () => setShowUnificateButton(false)
+          }}
+          closeOnEscape={true}
+        >
+          <input value={langSchema} type="text" placeholder='English;Russian etc' onChange={(e) => { setLangSchema(e.target.value) }}></input>
+          <></>
+        </UniversalPopup>
         <UniversalPopup
           isOpen={showSettings}
           title="Settings"
@@ -265,31 +329,50 @@ useEffect(() => {
             className="inputText"
             value={inputText}
             onChange={(e) => setInputText(e.target.value)}
-            rows={5}
+            rows={25}
             placeholder="Paste your XML here..."
           />
         </div>
           </div>
+        </UniversalPopup>  
+        <UniversalPopup
+          isOpen={showAddTextKey}
+          title="Add text key"
+          onClose={() => setShowAddTextKey(false)}
+          confirmButton={{
+            label: 'Confirm',
+            onClick: () => { handleAddTextKey(newTextKey); setShowAddTextKey(false) },
+            variant: 'primary',
+            autoFocus: true
+          }}
+          closeOnEscape={true}
+        >
+          <input value={newTextKey} type="text" placeholder='Input new TXT_KEY_ for example TXT_KEY_NEW_ENTRY' onChange={(e) => { setNewTextKey(e.target.value) }}></input>
+
+          <></>
         </UniversalPopup>        
+
       </div></div>
 
 
       <div className='grid-container'>
-        <InputBlock onShowInput={() => setShowInput(true)} onImportInput={()=>{setInputText(wrapAsGameText(inputText))}}></InputBlock>
+        <InputBlock onShowInput={() => setShowInput(true)} onImportInput={()=>{importFromText(inputText)}}></InputBlock>
 
         <Operations onParse={handleParse}
           onExport={handleExport}
           onAddTag={handleAddTag}
+          onUnificate={()=>{setShowUnificateButton(true)}}
           onShowSettings={() => setShowSettings(true)}
+          onAddNewTextKey={()=> setShowAddTextKey(true)}
         ></Operations>
 
-        <OutputBlock onShowOutput={() => setShowOutput(true)}
-          onCopyOutput={() => copyOutput()}
-          exportTime={exportTime}>
+        <OutputBlock onShowOutput={() => {handleExport(); setShowOutput(true)}}
+          onCopyOutput={() => {handleExport(); copyOutput()}}
+        onSaveAsFileOutput={()=>{handleSaveAsFileOutput()}}>
         </OutputBlock>
 
         <div>
-          {(xmlTree) ? (<SelectableList xmlTree={xmlTree} selectItem={selectItem}></SelectableList>) : <></>}
+          {(xmlTree) ? (<SelectableList treeVersion={treeVersion} xmlTree={xmlTree} selectItem={selectItem}></SelectableList>) : <></>}
         </div>
 
         <div>
