@@ -11,7 +11,7 @@ interface IOperations extends IReactChildren {
   onParse: OperationHandler
   onExport: OperationHandler
   onAddTag: OperationHandler
-  onShowSettings:OperationHandler
+  onShowSettings: OperationHandler
 
 }
 
@@ -23,33 +23,36 @@ const Operations: React.FC<IOperations> = ({
 }) => {
 
 
-function addTag(){
-  onAddTag()
-}
+  function addTag() {
+    onAddTag()
+  }
 
   return (
     <div className='operations-container'>
       <h3>Operations</h3>
-      <button
-        onClick={onParse}
-        className="parse-button">
-        Parse
-      </button>
-      <button
-        onClick={onExport}
-        className="export-button">
-        Export
-      </button>
-      <button
-        onClick={onShowSettings}
-        className="settings-button">
-        Settings
-      </button>      
-      <button
-        onClick={addTag}
-        className="add-tag-button">
-        AddTag
-      </button>
+      <div className='operations-block'>
+        <button
+          onClick={onParse}
+          className="parse-button">
+          Parse
+        </button>
+        <button
+          onClick={onExport}
+          className="export-button">
+          Export
+        </button>
+        <button
+          onClick={onShowSettings}
+          className="settings-button">
+          Settings
+        </button>
+        <button
+          onClick={addTag}
+          className="add-tag-button">
+          AddTag
+        </button>
+      </div>
+
     </div>
   );
 };

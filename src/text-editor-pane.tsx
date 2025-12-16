@@ -25,7 +25,7 @@ const TextEditorPane: React.FC<TextEditorPaneProps> = ({
 
 
   function getActualLang(){
-    let hiddenTagsList =  settings.hiddenTags.split(",")
+    let hiddenTagsList =  settings.hiddenTags.split(";")
     let actualLangs = Object.entries(langs).filter(([lang, ])=>{return !hiddenTagsList.includes(lang)})
     return actualLangs;
   }

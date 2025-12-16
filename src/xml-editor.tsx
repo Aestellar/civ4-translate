@@ -12,10 +12,11 @@ import Operations from './tsx/operations';
 
 import type { ISettings } from './ts/ISettings';
 import UniversalPopup from './tsx/UniversalPopup';
-import { getLocalTime } from './utils/utils';
+import { getLocalTime, wrapAsGameText } from './utils/utils';
 import type { LogMessage } from './ts/types';
 import LogPanel from './tsx/LogPanel';
 import OutputBlock from './tsx/outputBlock';
+import InputBlock from './tsx/inputBlock';
 
 import type { IReactChildren } from "./ts/IReactChildren";
 import './css/selectable_list.css';
@@ -60,6 +61,9 @@ useEffect(() => {
 
   const [showSettings, setShowSettings] = useState<boolean>(false);
   const [showOutput, setShowOutput] = useState<boolean>(false);
+  const [showInput, setShowInput] = useState<boolean>(false);
+
+  
   const [showAddTagButton, setShowAddTagButton] = useState<boolean>(false);
 
 
@@ -111,9 +115,11 @@ useEffect(() => {
     }
     console.log("Add new tag", tag);
   }
+
   function handleAddTag(): void {
     setShowAddTagButton(true)
   }
+
 
   function parseText(text: string) {
     try {
@@ -125,9 +131,16 @@ useEffect(() => {
     } catch (err) {
       addMessage(`Parse error: ${err instanceof Error ? err.message : 'Unknown'}`);
     }
+  }
 
-
-
+  function importFromText(text: string) {
+    try {
+      const newTree = new XMLTree(text, addMessage);
+    }
+    
+    catch (err) {
+      addMessage(`Parse error: ${err instanceof Error ? err.message : 'Unknown'}`);
+    }
   }
 
 
@@ -142,33 +155,6 @@ useEffect(() => {
     setSelectedElt(key);
   }, []);
 
-
-  // function handleFileDrop(fileList: FileList): void {
-  //   if (fileList.length > 0) {
-  //     const firstFile = fileList[0]; // or fileList.item(0)
-  //     // Use firstFile here
-  //     console.log(firstFile.name);
-
-  //     const file = fileList[0]; // Assume fileList exists and has files
-
-  //     if (file && file.name.endsWith('.xml')) {
-  //       const reader = new FileReader();
-  //       reader.onload = function (event: ProgressEvent<FileReader>) {
-  //         if (event.target) {
-  //           if (event.target.result) {
-  //             let result = event.target.result
-  //             if (typeof result === 'string') {
-  //               // result is safely treated as a string here
-  //               const xmlString: string = result;
-  //               parseText(xmlString)
-  //             }
-  //           }
-  //         }
-  //       };
-  //       reader.readAsText(file);
-  //     }
-  //   }
-  // }
 
   function updateHiddenTags(e: React.ChangeEvent<HTMLInputElement>): void {
     let hiddenTags: string = e.target.value;
@@ -262,11 +248,19 @@ useEffect(() => {
             <div>{formatOutputText()}</div>
           </div>
         </UniversalPopup>
-      </div></div>
-      {/* <DragDropModal handleFileDrop={handleFileDrop}></DragDropModal> */}
-      <div className='grid-container'>
+
+        <UniversalPopup
+          isOpen={showInput}
+          size="wide"
+          title="Input"
+          onClose={() => setShowInput(false)}
+          cancelButton={{
+            label: 'Exit',
+            onClick: () => { setShowInput(false) }
+          }}
+          closeOnEscape={true}>
+          <div>
         <div className='input-text-container'>
-          <h3>Input</h3>
           < textarea
             className="inputText"
             value={inputText}
@@ -275,16 +269,23 @@ useEffect(() => {
             placeholder="Paste your XML here..."
           />
         </div>
+          </div>
+        </UniversalPopup>        
+      </div></div>
+
+
+      <div className='grid-container'>
+        <InputBlock onShowInput={() => setShowInput(true)} onImportInput={()=>{setInputText(wrapAsGameText(inputText))}}></InputBlock>
 
         <Operations onParse={handleParse}
           onExport={handleExport}
           onAddTag={handleAddTag}
           onShowSettings={() => setShowSettings(true)}
         ></Operations>
+
         <OutputBlock onShowOutput={() => setShowOutput(true)}
           onCopyOutput={() => copyOutput()}
           exportTime={exportTime}>
-
         </OutputBlock>
 
         <div>

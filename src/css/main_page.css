@@ -48,31 +48,7 @@ div>.grid-container {
 }
 
 
-.input-text-container, .output-text-container {
-    overflow-x: hidden;
-    overflow-y: hidden;
-}
-.output-block h3{
-    text-align: center;
-}
 
-.inputText,
-.outputText {
-    width: 100%;
-    font-family: monospace;
-    resize: vertical;
-    overflow-x: hidden;
-    overflow-y: auto;
-    /* enable vertical scroll if content overflows */
-}
-
-.inputText {
-    min-height: 5em;
-}
-
-.outputText {
-    min-height: 80vh;
-}
 
 /* .language-section{
     display: block;
@@ -135,22 +111,6 @@ div>.grid-container {
   padding: 2px 4px;
   font-size: 14px;
 }
-/* .gender-plural-text-container {
-    display: inline-block;
-    margin-left: 20px;
-    vertical-align: top;
-}
-
-.language-section {
-    display: block;
-}
-
-.lang-textarea {
-    width: 600px;
-    resize: vertical;
-    min-height: 100px;
-
-} */
 
 .text-entries {
     display: block;

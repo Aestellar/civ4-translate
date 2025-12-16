@@ -1,6 +1,6 @@
 // src/components/OutputBlock.tsx
 import React from 'react';
-import '../css/OutputBlock.css'; // Optional: for styling
+import '../css/ioBlock.css'; // Optional: for styling
 
 export interface OutputBlockProps {
   exportTime?: string; // or Date, number — adjust as needed

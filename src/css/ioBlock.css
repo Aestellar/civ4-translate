@@ -29,7 +29,7 @@
   flex-wrap: wrap;
 }
 
-.output-btn {
+.output-btn, .input-btn  {
   padding: 6px 12px;
   border: none;
   border-radius: 4px;
@@ -42,7 +42,7 @@
   width: 100%;
 }
 
-.output-btn:hover {
+.output-btn:hover, .input-btn:hover{
   opacity: 0.9;
 }
 
@@ -51,7 +51,42 @@
   color: white;
 }
 
-.output-btn-copy {
-  background-color: #28a745;
+.input-btn-show{
+  background-color: #007bff;
   color: white;
+}
+.input-btn-import {
+  background-color: #f76b6b;
+  color: white;
+}
+
+.output-btn-copy {
+  background-color: rgb(40, 167, 69);
+  color: white;
+}
+
+.input-text-container, .output-text-container {
+    overflow-x: hidden;
+    overflow-y: hidden;
+}
+.output-block h3{
+    text-align: center;
+}
+
+.inputText,
+.outputText {
+    width: 100%;
+    font-family: monospace;
+    resize: vertical;
+    overflow-x: hidden;
+    overflow-y: auto;
+    /* enable vertical scroll if content overflows */
+}
+
+.inputText {
+    min-height: 5em;
+}
+
+.outputText {
+    min-height: 80vh;
 }

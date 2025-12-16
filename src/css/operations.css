@@ -13,6 +13,13 @@
   font-weight: 500;
 }
 
+.operations-block {
+  padding: 16px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+}
+
 /* Specific color variants */
 /* .operations-container .parse-button {
   color: #007bff;
