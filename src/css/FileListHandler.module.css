@@ -1,60 +1,102 @@
+/* Container: horizontal layout */
+.fileHandlerContainer {
+  display: flex;
+  gap: 20px;
+  padding: 16px;
+  justify-content: center;
+}
+
+/* Toggle when collapsed */
+.toggleContainer {
+  text-align: center;
+  margin-top: 12px;
+}
+
 .toggleButton {
+  padding: 8px 16px;
   background: #f0f0f0;
   border: 1px solid #ccc;
-  border-radius: 4px;
-  padding: 6px 12px;
+  border-radius: 6px;
   cursor: pointer;
   font-size: 14px;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  margin: 0 auto;
-  color: #333;
 }
 
+.toggleButton:hover {
+  background: #e0e0e0;
+}
+
+/* Drop zones */
 .fileDropZone {
   position: relative;
+  width: 100%; /* moderate fixed width */
+  height: 100%;
+  padding: 24px 16px 40px 16px; /* extra bottom for close button */
   border: 2px dashed #ccc;
   border-radius: 8px;
-  padding: 40px;
   text-align: center;
-  background-color: #fafafa;
-  transition: background-color 0.2s;
-  cursor: pointer;
+  transition: all 0.2s ease;
 }
 
-.fileDropZone.dragging {
-  background-color: #f0f8ff;
+.fileDropZone h3 {
+  margin-top: 0;
+  margin-bottom: 12px;
+  font-size: 16px;
 }
 
+/* Reference (light blue) */
+.referenceZone {
+  background-color: #e6f7ff;
+  border-color: #91d5ff;
+}
+
+.referenceZone.dragging {
+  background-color: #bae7ff;
+  border-color: #1890ff;
+}
+
+/* Editable (light red) */
+.editableZone {
+  background-color: #fff2f2;
+  border-color: #ffccc7;
+}
+
+.editableZone.dragging {
+  background-color: #ffccc7;
+  border-color: #ff4d4f;
+}
+
+/* Close button (top-right corner) */
 .closeButton {
   position: absolute;
   top: 8px;
   right: 8px;
-  background: transparent;
-  border: none;
-  font-size: 18px;
-  cursor: pointer;
-  color: #888;
   width: 24px;
   height: 24px;
+  background: rgba(0,0,0,0.1);
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 14px;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-.fileInputLabel {
-  display: inline-block;
-  padding: 8px 16px;
-  background-color: #007bff;
-  color: white;
-  border-radius: 4px;
-  cursor: pointer;
-  margin-top: 10px;
+.closeButton:hover {
+  background: rgba(0,0,0,0.2);
 }
 
-.supportText {
-  margin-top: 10px;
-  font-size: 0.9em;
-  color: #666;
+/* File input label */
+.fileInputLabel {
+  display: inline-block;
+  margin-top: 8px;
+  padding: 6px 12px;
+  background: #f0f0f0;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.fileInputLabel:hover {
+  background: #e0e0e0;
 }

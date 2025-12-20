@@ -4,11 +4,9 @@ import React, { useCallback, useEffect, useState } from 'react';
 import SelectableList from './selectable-list';
 import { XMLTree } from './xml-tree';
 import './css/main_page.css'
-// import type { TextValue } from './ts/types';
 import TextEditorPane from './text-editor-pane';
 import Operations from './tsx/operations';
-// import DragDropModal from './tsx/drag-and-drop-modal';
-// src/App.tsx
+
 
 import type { ISettings } from './ts/ISettings';
 import UniversalPopup from './tsx/UniversalPopup';
@@ -21,24 +19,23 @@ import InputBlock from './tsx/inputBlock';
 import type { IReactChildren } from "./ts/IReactChildren";
 import './css/selectable_list.css';
 import type { MessageType } from './types';
-import { downloadXMLFiles } from './utils/downloadXMLFiles';
 
 interface IXMLEditor extends IReactChildren {
   filename: string
   content: string
-  loadedXMLTree: XMLTree | undefined
+  loadedXMLTree: XMLTree
   updateXMLTree: (filename: string, xmlTree: XMLTree) => void
+  onSaveFile:(filename: string,loadedXMLTree: XMLTree)=>void
 }
 
-
-const XmlEditor: React.FC<IXMLEditor> = ({ filename, content, loadedXMLTree, updateXMLTree }) => {
+const XmlEditor: React.FC<IXMLEditor> = ({ filename, content, loadedXMLTree, updateXMLTree, onSaveFile}) => {
   const [inputText, setInputText] = useState<string>(content);
   useEffect(() => {
     setInputText(content);
   }, [content]);
 
   const [outputText, setOutputText] = useState<string>('');
-  const [xmlTree, setXmlTree] = useState<XMLTree | undefined>(loadedXMLTree);
+  const [xmlTree, setXmlTree] = useState<XMLTree>(loadedXMLTree);
   useEffect(() => {
   setXmlTree(loadedXMLTree);
 }, [loadedXMLTree]);
@@ -59,13 +56,11 @@ useEffect(() => {
   }
 }, [content, loadedXMLTree, filename, updateXMLTree, isParsing, addMessage]);
   const [selectedEltTextKey, setSelectedElt] = useState<string>();
-
-
   const [showSettings, setShowSettings] = useState<boolean>(false);
   const [showOutput, setShowOutput] = useState<boolean>(false);
   const [showInput, setShowInput] = useState<boolean>(false);
   const [showAddTextKey, setShowAddTextKey] = useState<boolean>(false);  
-const [treeVersion, setTreeVersion] = useState(0);
+  const [treeVersion, setTreeVersion] = useState(0);
   
   const [showAddTagButton, setShowAddTagButton] = useState<boolean>(false);
   const [newTag, setNewTag] = useState("")
@@ -85,6 +80,16 @@ const [treeVersion, setTreeVersion] = useState(0);
 
   const [messages, setMessages] = useState<LogMessage[]>([])
 
+  function handleSaveAsFileOutput() {
+      if (xmlTree) {
+      setOutputText(xmlTree.xmlToString())
+      // copyOutput()
+      // setExportTime(getLocalTime())
+      onSaveFile(filename, xmlTree)
+
+      addMessage("Exported as file","success")
+    }
+  }
 
 
 function addMessage(text: string, messageType: MessageType = 'normal') {
@@ -96,10 +101,6 @@ function addMessage(text: string, messageType: MessageType = 'normal') {
     };
     setMessages(prevMessages => [...prevMessages, message]);
 }
-  // function addMessage(text: string) {
-  //   let message: LogMessage = { time: getLocalTime(), text, fullText: "" }
-  //   setMessages(prevMessages => [...prevMessages, message]);
-  // }
 
   const handleSaveSettings = () => {
     // Save logic (e.g., API, localStorage)
@@ -136,7 +137,6 @@ function addMessage(text: string, messageType: MessageType = 'normal') {
     setShowAddTagButton(true)
   }
 
-
   function parseText(text: string) {
     try {
       const newTree = new XMLTree(text, addMessage);
@@ -165,7 +165,6 @@ function addMessage(text: string, messageType: MessageType = 'normal') {
     }
   }
 
-
   function getEditorPane() {
     if (xmlTree) {
       return <TextEditorPane selectedEltTextKey={selectedEltTextKey || ""} xmlTree={xmlTree} settings={settings}></TextEditorPane>
@@ -176,7 +175,6 @@ function addMessage(text: string, messageType: MessageType = 'normal') {
   const selectItem = useCallback((key: string) => {
     setSelectedElt(key);
   }, []);
-
 
   function updateHiddenTags(e: React.ChangeEvent<HTMLInputElement>): void {
     let hiddenTags: string = e.target.value;
@@ -201,17 +199,6 @@ function addMessage(text: string, messageType: MessageType = 'normal') {
 
   function handleUnificate(langSchema: any) {
     if(xmlTree) xmlTree.unifyLanguageOrder(langSchema.split(";"))
-  }
-
-  function handleSaveAsFileOutput() {
-      if (xmlTree) {
-      setOutputText(xmlTree.xmlToString())
-      // copyOutput()
-      // setExportTime(getLocalTime())
-
-      downloadXMLFiles([{ name: filename, content: xmlTree.xmlToString() }], false); // → direct XML
-      addMessage("Exported as file","success")
-    }
   }
 
   function handleAddTextKey(newTextKey: any) {
@@ -348,12 +335,9 @@ function addMessage(text: string, messageType: MessageType = 'normal') {
           closeOnEscape={true}
         >
           <input value={newTextKey} type="text" placeholder='Input new TXT_KEY_ for example TXT_KEY_NEW_ENTRY' onChange={(e) => { setNewTextKey(e.target.value) }}></input>
-
           <></>
         </UniversalPopup>        
-
       </div></div>
-
 
       <div className='grid-container'>
         <InputBlock onShowInput={() => setShowInput(true)} onImportInput={()=>{importFromText(inputText)}}></InputBlock>

@@ -1,84 +1,137 @@
 // TabsContainer.tsx
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import XmlEditor from '../xml-editor';
-import type { XMLFile } from '../types';
-import type { XMLTree } from '../xml-tree';
+import type { MessageType, XMLFile } from '../types';
+import { XMLTree } from '../xml-tree';
+import '../css/tabs-container.css';
+import FilesOperationsPanel from './FilesOperationsPanel';
+import type { LogMessage } from '../ts/types';
+import { getLocalTime } from '../utils/utils';
 
 
+// --- Main Component ---
 interface TabsContainerProps {
-  files: XMLFile[];
+  referenceFiles: XMLFile[];
+  editableFiles: XMLFile[];
+  onEditableFiles: (editableFiles: XMLFile[]) => void
+  onReferenceFiles: (referenceFiles: XMLFile[]) => void
+  onSaveFile: (filename: string, loadedXMLTree: XMLTree) => void
+  onSaveAll: () => void
 }
 
-const TabsContainer: React.FC<TabsContainerProps> = ({ files }) => {
-  const [activeTab, setActiveTab] = useState<string>("");
-  useEffect(() => {
-  if (files.length > 0 && !files.some(f => f.name === activeTab)) {
-    // Either no active tab, or active tab is no longer in files → select first
-    setActiveTab(files[0].name);
-  }
-}, [files, activeTab]);
+// Special tab ID for the operations panel
+const FILES_PANEL_TAB = "__FILES_PANEL__";
 
+const TabsContainer: React.FC<TabsContainerProps> = ({ referenceFiles, editableFiles, onEditableFiles, onReferenceFiles, onSaveFile, onSaveAll }) => {
+  const [activeTab, setActiveTab] = useState<string>(FILES_PANEL_TAB);
+  const [xmlTreeMap, setXmlTreeMap] = useState<Map<string, XMLTree | undefined>>(new Map());
+  const [messages, setMessages] = useState<LogMessage[]>([])
 
-  const [xmlTreeMap, setXmlTreeMap] = useState<Map<string, XMLTree|undefined>>(new Map());
+  const addXmlTree = useCallback((filename: string, xmlTree: XMLTree) => {
+    setXmlTreeMap(prev => {
+      const newMap = new Map(prev);
+      newMap.set(filename, xmlTree);
+      return newMap;
+    });
+  }, []);
 
-const addXmlTree = useCallback((filename: string, xmlTree: XMLTree) => {
-  setXmlTreeMap(prev => {
-    const newMap = new Map(prev);
-    newMap.set(filename, xmlTree);
-    return newMap;
-  });
-  
-}, []);
+  const tabItems = [
+    { id: FILES_PANEL_TAB, label: "📁 Files & Operations", isPanel: true },
+    ...editableFiles.map(file => ({ id: file.name, label: file.name, isPanel: false }))
+  ];
 
+  const currentFile = editableFiles.find(f => f.name === activeTab);
 
-  if (files.length === 0) {
-    return <div className="no-files">No XML files loaded</div>;
-  }
-
-  function selectTab(filename:string){
-      console.log(`Try to select tab ${filename}`,files, files.filter((x_file)=>{return x_file.name === filename}))
-      setActiveTab(filename)
-  }
-
-function getFileByName(filename:string){
-  const filteredFiles = files.filter((x_file)=>{return x_file.name === filename})
-  if(filteredFiles.length>0){
-  return filteredFiles[0]
-  }
-  else{
-    return undefined
+  function addMessage(text: string, messageType: MessageType = 'normal') {
+    let message: LogMessage = {
+      time: getLocalTime(),
+      text,
+      fullText: "",
+      messageType
+    };
+    setMessages(prevMessages => [...prevMessages, message]);
   }
 
-}
+function handleUnificate(langSchema: any) {
+    editableFiles.forEach((file)=>{
+      let xmlTree = xmlTreeMap.get(file.name)
+      if (xmlTree){
+        xmlTree.unifyLanguageOrder(langSchema.split(";"))
+      }
+      else{
+          xmlTree = new XMLTree(file.content, addMessage);
+          xmlTree.unifyLanguageOrder(langSchema.split(";"))
+          addXmlTree(file.name,xmlTree)        
+      }
+    // if(xmlTree) xmlTree.unifyLanguageOrder(langSchema.split(";"))
+    })
 
+  }
 
-function getCurrentFile(){
-  return getFileByName(activeTab)
-}
+  function getXmlEditor(activeTab: string, currentFile: XMLFile | undefined) {
+    let xmlTree = xmlTreeMap.get(activeTab)
+    if (!xmlTree) {
+      if (currentFile) {
+        try {
+          xmlTree = new XMLTree(currentFile.content, addMessage);
+          addXmlTree(currentFile.name,xmlTree)
+        }
+        catch (err) {
+          addMessage(`Parse error: ${err instanceof Error ? err.message : 'Unknown'}`);
+        }
+      }
+    }
 
-const currentFile=getCurrentFile()
+    if (xmlTree && currentFile) {
+      return (<XmlEditor
+        filename={activeTab}
+        content={currentFile.content}
+        updateXMLTree={addXmlTree}
+        loadedXMLTree={xmlTree}
+        onSaveFile={onSaveFile}
+      />)
+    }
+    else {
+      return (
+        <div className="error-placeholder">File not found.</div>
+      )
+    }
+  }
 
   return (
     <div className="tabs-container">
+      {/* Tab Bar */}
       <div className="tab-list">
-        {files.map((file) => (
+        {tabItems.map(tab => (
           <button
-            key={file.name}
-            className={`tab-button ${activeTab === file.name ? 'active' : ''}`}
-            onClick={() => selectTab(file.name)}
+            key={tab.id}
+            className={`tab-button ${activeTab === tab.id ? 'active' : ''} `}
+            onClick={() => {
+              let xmlTree = xmlTreeMap.get(activeTab)
+              if (xmlTree) {
+                if (currentFile) { currentFile.content = xmlTree.xmlToString() }
+              }
+              setActiveTab(tab.id)
+            }}
           >
-            {file.name}
+            {tab.label}
           </button>
         ))}
       </div>
+
+      {/* Tab Content */}
       <div className="tab-content">
-        {currentFile?
-        <XmlEditor 
-          filename={activeTab} 
-          content={currentFile.content}
-          updateXMLTree = {addXmlTree}
-          loadedXMLTree = {xmlTreeMap.get(activeTab)}
-        />:<></>}
+        {activeTab === FILES_PANEL_TAB ? (
+          <FilesOperationsPanel
+            onEditableFiles={onEditableFiles}
+            onReferenceFiles={onReferenceFiles}
+            referenceFiles={referenceFiles}
+            editableFiles={editableFiles}
+            onSaveAll={onSaveAll}
+            onUnificate={handleUnificate}
+            messages={messages}
+          />
+        ) : getXmlEditor(activeTab, currentFile)}
       </div>
     </div>
   );
